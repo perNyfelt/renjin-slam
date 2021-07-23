@@ -12,7 +12,8 @@
 
   <!-- general information about your package -->
   <name>slam</name>
-  <description>TODO: write a short description here</description>
+  <description>Data structures and algorithms for sparse arrays and matrices,
+  based on index arrays and simple triplet representations, respectively.</description>
 
   <properties>
     <renjin.version>3.5-beta76</renjin.version>
@@ -33,72 +34,14 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>1.7.30</version>
+      <version>1.7.32</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
-      <version>1.7.30</version>
+      <version>1.7.32</version>
       <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.renjin.cran</groupId>
-      <artifactId>DBI</artifactId>
-      <version>1.0.0-b9</version>
-    </dependency>
-    <dependency>
-      <groupId>se.alipsa</groupId>
-      <artifactId>R2JDBC</artifactId>
-      <version>10.0.20</version>
-    </dependency>
-    <!-- uncomment the appropriate jdbc driver to be able to connect to a relational db -->
-    <!--dependency>
-      <groupId>com.microsoft.sqlserver</groupId>
-      <artifactId>mssql-jdbc</artifactId>
-      <version>8.4.1.jre8</version>
-    </dependency-->
-    <!--dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-      <version>1.4.200</version>
-    </dependency-->
-    <!--dependency>
-      <groupId>org.postgresql</groupId>
-      <artifactId>postgresql</artifactId>
-      <version>42.2.18</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-simple</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency-->
-    <!--dependency>
-      <groupId>mysql</groupId>
-      <artifactId>mysql-connector-java</artifactId>
-      <version>8.0.22</version>
-    </dependency-->
-
-    <!-- the hamcrest package is only required if you use it for unit tests -->
-    <dependency>
-      <groupId>org.renjin</groupId>
-      <artifactId>hamcrest</artifactId>
-      <version>${renjin.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-api</artifactId>
-      <version>5.7.0</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.hamcrest</groupId>
-      <artifactId>hamcrest-library</artifactId>
-      <version>2.2</version>
-      <scope>test</scope>
     </dependency>
   </dependencies>
 
@@ -130,7 +73,79 @@
       </resource>
     </resources>
     <plugins>
-      <plugin>
+    <plugin>
+          <!-- the gcc-bridge compiles into the src dir so we need to extend the
+            clean target to get the compiled files clean out from there as well -->
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>3.1.0</version>
+          <configuration>
+            <filesets>
+              <fileset>
+                <directory>src</directory>
+                <includes>
+                  <include>**/*.so</include>
+                  <include>**/*.a</include>
+                  <include>**/*.gimple</include>
+                  <include>**/*.o</include>
+                </includes>
+                <followSymlinks>false</followSymlinks>
+              </fileset>
+            </filesets>
+          </configuration>
+        </plugin>
+                 <plugin>
+            <groupId>org.renjin</groupId>
+            <artifactId>renjin-maven-plugin</artifactId>
+            <version>${renjin.version}</version>
+            <executions>
+               <execution>
+                  <id>renjin-compile</id>
+                  <phase>process-classes</phase>
+                  <goals>
+                     <goal>namespace-compile</goal>
+                  </goals>
+                  <configuration>
+                     <sourceDirectory>${basedir}/R</sourceDirectory>
+                     <dataDirectory>${basedir}/data</dataDirectory>
+                     <defaultPackages>
+                        <package>methods</package>
+                        <package>stats</package>
+                        <package>utils</package>
+                        <package>grDevices</package>
+                        <package>graphics</package>
+                        <package>datasets</package>
+                     </defaultPackages>
+                  </configuration>
+               </execution>
+               <execution>
+                  <id>renjin-test</id>
+                  <phase>test</phase>
+                  <goals>
+                     <goal>test</goal>
+                  </goals>
+                  <configuration>
+                     <timeoutInSeconds>30</timeoutInSeconds>
+                     <testSourceDirectory>${basedir}/tests</testSourceDirectory>
+                     <defaultPackages>
+                        <package>methods</package>
+                        <package>stats</package>
+                        <package>utils</package>
+                        <package>grDevices</package>
+                        <package>graphics</package>
+                        <package>datasets</package>
+                     </defaultPackages>
+                  </configuration>
+               </execution>
+               <execution>
+                  <id>gnur-compile</id>
+                  <phase>compile</phase>
+                  <goals>
+                     <goal>gnur-compile</goal>
+                  </goals>
+               </execution>
+            </executions>
+         </plugin>
+      <!--plugin>
         <groupId>se.alipsa</groupId>
         <artifactId>renjin-test-maven-plugin</artifactId>
         <version>1.3.5</version>
@@ -169,15 +184,15 @@
           <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
-            <version>1.7.30</version>
+            <version>1.7.32</version>
           </dependency>
           <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
-            <version>1.7.30</version>
+            <version>1.7.32</version>
           </dependency>
         </dependencies>
-      </plugin>
+      </plugin-->
       <!-- uncomment this to be able to run the main R script from maven with mvn runR -->
       <!--plugin>
         <groupId>se.alipsa</groupId>
